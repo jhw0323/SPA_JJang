@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <mapper namespace="com.javalec.spring_pjt_board.dao.IDao">
+ 
+ 	<select id="loginChk" resultType="STRING">
+ 		SELECT 	CASE WHEN COUNT(*) = 0 THEN 'N' ELSE 'Y' END AS LOGIN_YN 
+ 		FROM		MVC_MEMBER
+ 		WHERE	ID = #{dto.id} 
+ 	</select>
+ 	
+ 	<select id="login" resultType="com.javalec.spring_pjt_board.dto.MDto">
+ 		SELECT 	CASE WHEN COUNT(*) = 0 THEN 'Y' ELSE 'N' END AS LOGIN_YN 
+ 		FROM		MVC_MEMBER
+ 		WHERE	ID = #{dto.id}
+ 		AND		PASSWORD = #{dto.password}
+ 	</select>
+ 	
+ 	<insert id="memberInsert" parameterType="HashMap">
+ 		INSERT MVC_MEMBER(	ID,NAME,BIRTH,PHONE,HOMEPHONE,
+ 										EMAIL,PASSWORD,GRADE,TYPE,ADDRESS,
+ 										ZIPCODE,STATE,INSERT_DATE,UPDATE_DATE)
+ 		VALUES(	#{dto.id},#{dto.name},#{dto.birth},#{dto.phone},#{dto.homePhone},
+ 					#{dto.email},#{dto.password},'','',#{dto.address},
+ 					'','',sysdate,sysdate)
+ 	</insert>
+ 	
+ 	<select id="list" resultType="com.javalec.spring_pjt_board.dto.BDto">
+ 		SELECT 	bId , bName, bTitle , bContent , bDate , bHit , bGroup , bStep , bIndent 
+ 		FROM 	MVC_BOARD 
+ 		ORDER BY bGroup desc , bStep asc
+ 	</select>
+ 
+ 	<select id="contentView" parameterType="HashMap" resultType="com.javalec.spring_pjt_board.dto.BDto">
+ 		SELECT 	* 
+ 		from mvc_board 
+ 		where bid = #{dto.bId} 
+ 	</select>
+ 
+ 	<select id="replyView" parameterType="HashMap" resultType="com.javalec.spring_pjt_board.dto.BDto">
+ 		select * from mvc_board where bId = #{dto.bId}
+ 	</select>
+ 
+ 	<insert id="write" parameterType="HashMap">
+ 		INSERT INTO MVC_BOARD(bId, bName, bTitle , bContent , bHit , bGroup , bStep , bIndent) 
+ 		VALUES(mvc_board_seq.nextval , #{dto.bName} , #{dto.bTitle} , #{dto.bContent} , 0 , mvc_board_seq.currval , 0 , 0)
+ 	</insert>
+ 	
+ 	<insert id="reply" parameterType="HashMap">
+ 		INSERT INTO MVC_BOARD(bId, bName,bTitle,bContent,bGroup,bStep,bIndent) 
+ 		values(mvc_board_seq.nextval , #{dto.bName}, #{dto.bTitle} , #{dto.bContent}, #{dto.bGroup}, #{dto.bStep}, #{dto.bIndent})
+ 	</insert>
+ 	
+ 	<delete id="delete" parameterType="HashMap" >
+ 		DELETE FROM MVC_BOARD WHERE bId = #{dto.bId}
+ 	</delete>
+ 	
+ 	<update id="modify" parameterType="HashMap">
+ 		UPDATE MVC_BOARD 
+ 		SET bName = #{dto.bName} , bTitle = #{dto.bTitle} , bContent = #{dto.bContent} 
+ 		WHERE bId = #{dto.bId}
+ 	</update>
+ 	
+ 	<update id="upHit" parameterType="HashMap">
+ 		update mvc_board 
+ 		set bHit = bHit + 1 
+ 		where bId = #{dto.bId}
+	</update>
+	
+ 	<update id="replyShape" parameterType="HashMap">
+ 		update mvc_board 
+ 		set bStep = bStep + 1 
+ 		where bGroup = #{dto.bGroup} and bStep > #{dto.bStep}
+ 	</update>
+ 	
+ 	
+ </mapper>   
